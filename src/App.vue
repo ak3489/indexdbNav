@@ -832,13 +832,13 @@ export default {
 
     // console.log('userInfo',localStorage.getItem('userInfo'));
     // 添加百度统计
-    let _hmt = _hmt || []
-    ;(function() {
-      let hm = document.createElement('script')
-      hm.src = 'https://hm.baidu.com/hm.js?b77f0ca4f2ff4960338c95760b7efb11'
-      let s = document.getElementsByTagName('script')[0]
-      s.parentNode.insertBefore(hm, s)
-    })()
+    // let _hmt = _hmt || []
+    // ;(function() {
+    //   let hm = document.createElement('script')
+    //   hm.src = 'https://hm.baidu.com/hm.js?b77f0ca4f2ff4960338c95760b7efb11'
+    //   let s = document.getElementsByTagName('script')[0]
+    //   s.parentNode.insertBefore(hm, s)
+    // })()
 
   },
   beforeDestroy() {
