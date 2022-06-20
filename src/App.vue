@@ -315,7 +315,18 @@ export default {
       this.getSiteList()
       this.getTypeList();
     });
-    this.loading = this.$loading({ fullscreen: true })
+    this.loading = this.$loading({ fullscreen: true });
+    
+    let saveTip = localStorage.getItem("saveTip");
+    if(!saveTip){
+      this.$notify({
+        title: '注意',
+        message: '清空浏览器数据会清掉导航内容！',
+        duration: 0
+      });
+      localStorage.setItem("saveTip", new Date());
+    }
+    
       
   },
   methods: {
