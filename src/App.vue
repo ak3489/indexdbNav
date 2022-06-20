@@ -358,7 +358,7 @@ export default {
               this.showDel = true;
             }
           },
-           { label: "导出链接", divided: false, icon: "el-icon-delete",
+           { label: "导出链接", divided: false, icon: "el-icon-files",
             onClick: () => {
               this.exportLink()
             }
