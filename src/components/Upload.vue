@@ -14,10 +14,13 @@
             class="upload"
             drag
             :action=action
-            accept="text/html"
+            accept="text/html,application/json"
             :data="uData"
+            :file-list="fileList"
             name="singleFile"
             :before-upload="beforeUpload"
+            :on-preview="handlePreview"
+            :on-change="handleChange"
             >
             <i class="el-icon-upload"></i>
             <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
@@ -34,6 +37,8 @@
 
 <script>
 import { baseURL } from '@/config/settings'
+import Idb from 'idb-js'  //  引入Idb
+import db_student_config from '../db/db_student_config'
     export default {
         name: 'Upload',
         components: {},
@@ -45,18 +50,45 @@ import { baseURL } from '@/config/settings'
         },
         data () {
             return {
+                navDb:null,
                 visible:false,
                 uData:{userCode:''},
-                action:`${baseURL}/upload/single`
+                action:`${baseURL}/upload/single`,
+                fileList:[],
+                jsonData:null,
+                fileType:null,
+                oldTypeList:[],
+                oldLinkList:[],
             };
         },
         created(){
+            Idb(db_student_config).then(nav_db => {
+                this.navDb = nav_db;
+                //获取导航类别
+                this.navDb.queryAll({
+                    tableName: "type",
+                    success: (res) => {
+                        // console.log('getTypeList',res)
+                        this.oldTypeList = res;
+                    }
+                });
+                //获取导航链接
+                this.navDb.queryAll({
+                    tableName: "link",
+                    success: (res) => {
+                        // console.log('getTypeList',res)
+                        this.oldLinkList = res;
+                    }
+                });
+            });
+
+            
             
         },
         watch: {
             dialogVisible (newValue, oldValue) {
             this.visible = newValue
-            console.log('newValue',newValue)
+            // console.log('newValue',newValue)
             }
         },
         mounted(){
@@ -65,13 +97,134 @@ import { baseURL } from '@/config/settings'
             // console.log('userInfo',userInfo.sub);
         },
         methods: {
-            beforeUpload(){
-                if(!this.uData.userCode){
-                    this.$message.error('请先登录!');
+            groupArr(arr) {
+                var map = {},
+                    result = [];
+                for (var i = 0; i < arr.length; i++) {
+                    var ai = arr[i];
+                    if (!map[ai.type]) {
+                    result.push({
+                        ftitle: ai.type,
+                        list: [ai]
+                    });
+                    map[ai.type] = ai;
+                    } else {
+                    for (var j = 0; j < result.length; j++) {
+                        var dj = result[j];
+                        if (dj.ftitle == ai.type) {
+                        dj.list.push(ai);
+                        break;
+                        }
+                    }
+                    }
                 }
-                return this.uData.userCode
+                return result;
             },
-             confirmUpload(){
+            uuid() {
+                var s = [];
+                var hexDigits = "0123456789abcdef";
+                for (var i = 0; i < 36; i++) {
+                    s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
+                }
+                s[14] = "4"; // bits 12-15 of the time_hi_and_version field to 0010
+                s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1); // bits 6-7 of the clock_seq_hi_and_reserved to 01
+                s[8] = s[13] = s[18] = s[23] = "-";
+            
+                var uuid = s.join("");
+                return uuid;
+            },
+            beforeUpload(file){
+                // console.log('beforeUpload',file.File);
+                
+                // if(!this.uData.userCode){
+                //     this.$message.error('请先登录!');
+                // }
+                // return this.uData.userCode
+            },
+            handleChange(file, fileList) {
+                // this.fileList = fileList.slice(-3);
+                // let fileType = file.raw.type;
+                // console.log('fileType',fileType);
+                // console.log('file',file);
+
+                // console.log('this.fileList',this.fileList);
+            },
+            handlePreview(file) {
+                // console.log('handlePreview',file);
+                let reader = new FileReader();
+                this.fileType = file.raw.type;
+                reader.readAsText(file.raw);
+                reader.onload = (e) => {
+                    this.jsonData = JSON.parse(e.target.result);
+                    // console.log('fileType',this.fileType);
+                    // console.log(' this.jsonData', this.jsonData);
+                    // console.log('typeof this.jsonData', typeof this.jsonData);
+
+
+                    let siteList = this.groupArr(this.jsonData);
+                    // console.log('siteList',siteList);
+                    let types = siteList.map(item => {
+                        return {
+                            code:'',
+                            type:item.ftitle,
+                            _id:this.uuid()
+                        }
+                    });
+                    // console.log('types',types);
+                    // console.log('oldTypeList',this.oldTypeList);
+                    let newTypeList = types.concat(this.oldTypeList);
+                    let obj = {};
+                    newTypeList = newTypeList.reduce((newArr, next) => {
+                        obj[next.type] ? "" : (obj[next.type] = true && newArr.push(next));
+                        return newArr;
+                    }, []);
+                    // console.log('newTypeList',newTypeList);
+                    //先清除类型数据
+                    this.navDb.clear_table({
+                        tableName:'type'
+                    });
+                    // 插入多条数据
+                    this.navDb.insert({
+                        tableName: "type",
+                        data: newTypeList,
+                        success: () => {
+                            this.$message.success('存入类型成功');
+                            console.log("添加成功")
+                        }
+                    });
+
+                     // 获取所有项
+                    let linkList = siteList.map(item => {
+                        return item.list
+                    });
+                    linkList = linkList.flat();
+                    console.log('linkList',linkList);
+                    let newLinkList = linkList.concat(this.oldLinkList);
+                    let linkObj = {};
+                    linkList = newLinkList.reduce((newArr, next) => {
+                        linkObj[next.type] ? "" : (linkObj[next.type] = true && newArr.push(next));
+                        return newArr;
+                    }, []);
+                    // console.log('linkList',linkList);
+                    //先清除类型数据
+                    this.navDb.clear_table({
+                        tableName:'link'
+                    });
+                    // 插入多条数据
+                    this.navDb.insert({
+                        tableName: "link",
+                        data: linkList,
+                        success: () => {
+                            this.$message.success('存入链接成功');
+                            console.log("添加成功")
+                            location.reload()
+                        }
+                    });
+                    
+                };
+            },
+             confirmUpload(file){
+                // console.log('confirmUpload',file);
                 this.$emit('confirmUpload')
              },
              cancelUpload(){

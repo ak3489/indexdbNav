@@ -190,12 +190,13 @@
     </el-dialog>
 
     <Upload :dialogVisible="uploadVisible" @confirmUpload="confirmUpload" @cancelUpload="cancelUpload"></Upload>
+    <Uplocal />
 
     <el-dialog
       title="提示"
       :visible.sync="showDel"
       width="30%">
-      <span>确认删除所有数据吗</span>
+      <span>确认删除所有数据吗，记得先导出备份哟！</span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="showDel = false">取 消</el-button>
         <el-button type="primary" @click="clearTable">确 定</el-button>
@@ -207,6 +208,7 @@
 import SiteList from '@/components/SiteList'
 import Kitty from '@/components/Kitty'
 import Upload from '@/components/Upload'
+import Uplocal from '@/components/Uplocal'
 import { getSiteList, addType, getTypeList, addLink, analysisURL } from '@/api'
 import utils from '@/utils/index.js'
 import saveJSON from '@/utils/saveJSON.js'
@@ -218,6 +220,7 @@ export default {
   components: {
     SiteList,
     Kitty,
+    Uplocal,
     Upload
     // Cute,
   },
@@ -353,7 +356,7 @@ export default {
               // this.$message("新增类别");
             }
           },
-          { label: "清除所有", divided: false, icon: "el-icon-delete",
+          { label: "清除所有链接", divided: false, icon: "el-icon-delete",
             onClick: () => {
               this.showDel = true;
             }
@@ -363,13 +366,14 @@ export default {
               this.exportLink()
             }
           },
-          // {
-          //   label: "导入",
-          //   divided: true,
-          //   onClick: () => {
-          //     this.uploadVisible = true;
-          //   }
-          // }
+          {
+            label: "导入链接",
+            divided: true,
+            icon:"el-icon-edit-outline",
+            onClick: () => {
+              this.uploadVisible = true;
+            }
+          }
         ],
         event,
         //x: event.clientX,
