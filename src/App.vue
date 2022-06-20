@@ -745,8 +745,9 @@ export default {
       this.getTypeList();
     },
     exportLink(){
-      saveJSON(this.typeList,'typeList.json')
-      saveJSON(this.siteList,'siteList.json')
+      saveJSON(this.linkData,'linkData.json')
+      // saveJSON(this.typeList,'typeList.json')
+      // saveJSON(this.siteList,'siteList.json')
     }
   },
   watch: {
