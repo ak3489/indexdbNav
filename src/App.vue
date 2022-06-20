@@ -209,6 +209,7 @@ import Kitty from '@/components/Kitty'
 import Upload from '@/components/Upload'
 import { getSiteList, addType, getTypeList, addLink, analysisURL } from '@/api'
 import utils from '@/utils/index.js'
+import saveJSON from '@/utils/saveJSON.js'
 
 import Idb from 'idb-js'  //  引入Idb
 import db_student_config from './db/db_student_config'
@@ -355,6 +356,11 @@ export default {
           { label: "清除所有", divided: false, icon: "el-icon-delete",
             onClick: () => {
               this.showDel = true;
+            }
+          },
+           { label: "导出链接", divided: false, icon: "el-icon-delete",
+            onClick: () => {
+              this.exportLink()
             }
           },
           // {
@@ -737,7 +743,10 @@ export default {
       })
       this.getSiteList()
       this.getTypeList();
-
+    },
+    exportLink(){
+      saveJSON(this.typeList,'typeList.json')
+      saveJSON(this.siteList,'siteList.json')
     }
   },
   watch: {
