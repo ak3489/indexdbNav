@@ -24,7 +24,7 @@
             >
             <i class="el-icon-upload"></i>
             <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-            <div class="el-upload__tip" slot="tip">只能上传谷歌导出的html文件</div>
+            <div class="el-upload__tip" slot="tip">只能导入本站导出的json文件，选择文件后要点击下面的文件名触发导入</div>
         </el-upload>
         <span slot="footer" class="dialog-footer">
             <el-button @click="cancelUpload">关 闭</el-button>
@@ -155,71 +155,82 @@ import db_student_config from '../db/db_student_config'
                 this.fileType = file.raw.type;
                 reader.readAsText(file.raw);
                 reader.onload = (e) => {
-                    this.jsonData = JSON.parse(e.target.result);
+                    
                     // console.log('fileType',this.fileType);
                     // console.log(' this.jsonData', this.jsonData);
                     // console.log('typeof this.jsonData', typeof this.jsonData);
 
+                    if(this.fileType=='application/json'){
+                        this.jsonData = JSON.parse(e.target.result);
+                        let siteList = this.groupArr(this.jsonData);
+                        // console.log('siteList',siteList);
+                        let types = siteList.map(item => {
+                            return {
+                                code:'',
+                                type:item.ftitle,
+                                _id:this.uuid()
+                            }
+                        });
+                        // console.log('types',types);
+                        // console.log('oldTypeList',this.oldTypeList);
+                        let newTypeList = types.concat(this.oldTypeList);
+                        let obj = {};
+                        newTypeList = newTypeList.reduce((newArr, next) => {
+                            obj[next.type] ? "" : (obj[next.type] = true && newArr.push(next));
+                            return newArr;
+                        }, []);
+                        // console.log('newTypeList',newTypeList);
+                        //先清除类型数据
+                        this.navDb.clear_table({
+                            tableName:'type'
+                        });
+                        // 插入多条数据
+                        this.navDb.insert({
+                            tableName: "type",
+                            data: newTypeList,
+                            success: () => {
+                                this.$message.success('存入类型成功');
+                                console.log("添加成功")
+                            }
+                        });
 
-                    let siteList = this.groupArr(this.jsonData);
-                    // console.log('siteList',siteList);
-                    let types = siteList.map(item => {
-                        return {
-                            code:'',
-                            type:item.ftitle,
-                            _id:this.uuid()
-                        }
-                    });
-                    // console.log('types',types);
-                    // console.log('oldTypeList',this.oldTypeList);
-                    let newTypeList = types.concat(this.oldTypeList);
-                    let obj = {};
-                    newTypeList = newTypeList.reduce((newArr, next) => {
-                        obj[next.type] ? "" : (obj[next.type] = true && newArr.push(next));
-                        return newArr;
-                    }, []);
-                    // console.log('newTypeList',newTypeList);
-                    //先清除类型数据
-                    this.navDb.clear_table({
-                        tableName:'type'
-                    });
-                    // 插入多条数据
-                    this.navDb.insert({
-                        tableName: "type",
-                        data: newTypeList,
-                        success: () => {
-                            this.$message.success('存入类型成功');
-                            console.log("添加成功")
-                        }
-                    });
+                        // 获取所有项
+                        let linkList = siteList.map(item => {
+                            return item.list
+                        });
+                        linkList = linkList.flat();
+                        console.log('linkList',linkList);
+                        let newLinkList = linkList.concat(this.oldLinkList);
+                        let linkObj = {};
+                        linkList = newLinkList.reduce((newArr, next) => {
+                            linkObj[next.type] ? "" : (linkObj[next.type] = true && newArr.push(next));
+                            return newArr;
+                        }, []);
+                        // console.log('linkList',linkList);
+                        //先清除类型数据
+                        this.navDb.clear_table({
+                            tableName:'link'
+                        });
+                        // 插入多条数据
+                        this.navDb.insert({
+                            tableName: "link",
+                            data: linkList,
+                            success: () => {
+                                this.$message.success('存入链接成功');
+                                console.log("添加成功")
+                                location.reload()
+                            }
+                        });
 
-                     // 获取所有项
-                    let linkList = siteList.map(item => {
-                        return item.list
-                    });
-                    linkList = linkList.flat();
-                    console.log('linkList',linkList);
-                    let newLinkList = linkList.concat(this.oldLinkList);
-                    let linkObj = {};
-                    linkList = newLinkList.reduce((newArr, next) => {
-                        linkObj[next.type] ? "" : (linkObj[next.type] = true && newArr.push(next));
-                        return newArr;
-                    }, []);
-                    // console.log('linkList',linkList);
-                    //先清除类型数据
-                    this.navDb.clear_table({
-                        tableName:'link'
-                    });
-                    // 插入多条数据
-                    this.navDb.insert({
-                        tableName: "link",
-                        data: linkList,
-                        success: () => {
-                            this.$message.success('存入链接成功');
-                            console.log("添加成功")
-                            location.reload()
-                        }
-                    });
+                    }else if(this.fileType=='text/html'){
+                        this.jsonData = e.target.result;
+                        this.$message.warning('暂时不支持此类文件！');
+                        console.log('this.jsonData',this.jsonData);
+
+                    }else{
+                        this.$message.error('请选择正确的文件');
+                    }
+                    
                     
                 };
             },
