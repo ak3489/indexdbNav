@@ -64,22 +64,6 @@ import db_student_config from '../db/db_student_config'
         created(){
             Idb(db_student_config).then(nav_db => {
                 this.navDb = nav_db;
-                //获取导航类别
-                this.navDb.queryAll({
-                    tableName: "type",
-                    success: (res) => {
-                        // console.log('getTypeList',res)
-                        this.oldTypeList = res;
-                    }
-                });
-                //获取导航链接
-                this.navDb.queryAll({
-                    tableName: "link",
-                    success: (res) => {
-                        // console.log('getTypeList',res)
-                        this.oldLinkList = res;
-                    }
-                });
             });
 
             
@@ -142,6 +126,22 @@ import db_student_config from '../db/db_student_config'
                 // return this.uData.userCode
             },
             handleChange(file, fileList) {
+                //获取导航类别
+                    this.navDb.queryAll({
+                        tableName: "type",
+                        success: (res) => {
+                            // console.log('getTypeList',res)
+                            this.oldTypeList = res;
+                        }
+                    });
+                    //获取导航链接
+                    this.navDb.queryAll({
+                        tableName: "link",
+                        success: (res) => {
+                            console.log('queryAll oldLinkList',res)
+                            this.oldLinkList = res;
+                        }
+                    });
                 // this.fileList = fileList.slice(-3);
                 // let fileType = file.raw.type;
                 // console.log('fileType',fileType);
@@ -155,7 +155,7 @@ import db_student_config from '../db/db_student_config'
                 this.fileType = file.raw.type;
                 reader.readAsText(file.raw);
                 reader.onload = (e) => {
-                    
+                                        
                     // console.log('fileType',this.fileType);
                     // console.log(' this.jsonData', this.jsonData);
                     // console.log('typeof this.jsonData', typeof this.jsonData);
@@ -173,7 +173,7 @@ import db_student_config from '../db/db_student_config'
                         });
                         // console.log('types',types);
                         // console.log('oldTypeList',this.oldTypeList);
-                        let newTypeList = types.concat(this.oldTypeList);
+                        let newTypeList = this.oldTypeList.concat(types);
                         let obj = {};
                         newTypeList = newTypeList.reduce((newArr, next) => {
                             obj[next.type] ? "" : (obj[next.type] = true && newArr.push(next));
@@ -203,10 +203,10 @@ import db_student_config from '../db/db_student_config'
                         let newLinkList = linkList.concat(this.oldLinkList);
                         let linkObj = {};
                         linkList = newLinkList.reduce((newArr, next) => {
-                            linkObj[next.type] ? "" : (linkObj[next.type] = true && newArr.push(next));
+                            linkObj[next.url] ? "" : (linkObj[next.url] = true && newArr.push(next));
                             return newArr;
                         }, []);
-                        // console.log('linkList',linkList);
+                        console.log('linkList',linkList);
                         //先清除类型数据
                         this.navDb.clear_table({
                             tableName:'link'

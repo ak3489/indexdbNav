@@ -322,18 +322,35 @@ export default {
     this.loading = this.$loading({ fullscreen: true });
     
     let saveTip = localStorage.getItem("saveTip");
-    if(!saveTip){
+    let nowTime = `${new Date().getFullYear()}-${new Date().getMonth()+1}-${new Date().getDate()}`;
+    // console.log('saveTip',saveTip);
+    // console.log('Between',);
+    let between = this.getDaysBetween(nowTime,saveTip);
+    if(!saveTip||between>2){
       this.$notify({
         title: '注意',
         message: '清空浏览器数据会清掉导航内容！',
         duration: 0
       });
-      localStorage.setItem("saveTip", new Date());
+      let saveTime = `${new Date().getFullYear()}-${new Date().getMonth()+1}-${new Date().getDate()}`;
+      localStorage.setItem("saveTip", saveTime);
     }
     
       
   },
   methods: {
+    getDaysBetween(startDate, enDate) {
+        const sDate = Date.parse(startDate)
+        const eDate = Date.parse(enDate)
+        if (sDate > eDate) {
+            return 0
+        }
+        if (sDate === eDate) {
+            return 1
+        }
+        const days = (eDate - sDate) / (1 * 24 * 60 * 60 * 1000)
+        return days
+    },
     onContextmenu(event) {
       this.$contextmenu({
         items: [
