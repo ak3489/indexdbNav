@@ -190,7 +190,7 @@
     </el-dialog>
 
     <Upload :dialogVisible="uploadVisible" @confirmUpload="confirmUpload" @cancelUpload="cancelUpload"></Upload>
-    <Uplocal />
+    <!-- <Uplocal /> -->
 
     <el-dialog
       title="提示"
@@ -208,7 +208,7 @@
 import SiteList from '@/components/SiteList'
 import Kitty from '@/components/Kitty'
 import Upload from '@/components/Upload'
-import Uplocal from '@/components/Uplocal'
+// import Uplocal from '@/components/Uplocal'
 import { getSiteList, addType, getTypeList, addLink, analysisURL } from '@/api'
 import utils from '@/utils/index.js'
 import saveJSON from '@/utils/saveJSON.js'
@@ -220,8 +220,8 @@ export default {
   components: {
     SiteList,
     Kitty,
-    Uplocal,
-    Upload
+    Upload,
+    // Uplocal,
     // Cute,
   },
   data() {
