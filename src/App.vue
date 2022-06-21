@@ -329,7 +329,7 @@ export default {
     if(!saveTip||between>2){
       this.$notify({
         title: '注意',
-        message: '清空浏览器数据会清掉导航内容！',
+        message: '清空浏览器数据会清掉导航内容，记得导出备份！',
         duration: 0
       });
       let saveTime = `${new Date().getFullYear()}-${new Date().getMonth()+1}-${new Date().getDate()}`;
