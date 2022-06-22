@@ -208,7 +208,7 @@ import db_student_config from '../db/db_student_config'
                             return newArr;
                         }, []);
                         console.log('linkList',linkList);
-                        //先清除类型数据
+                        //先清除数据
                         this.navDb.clear_table({
                             tableName:'link'
                         });
@@ -250,6 +250,7 @@ import db_student_config from '../db/db_student_config'
                 // 加载html，使用常用的$符号
                 var htmls = $.parseHTML(html);
                 // console.log('htmls',htmls);
+
                 // 获取最外层的dt标签
                 var $dl = $(htmls).find("dl").first();
                 console.log('dls',$(htmls).find("dl"));
@@ -259,16 +260,55 @@ import db_student_config from '../db/db_student_config'
 
                 // let dls = $(htmls).find("dl");
                 // for (let index = 0; index < dls.length; index++) {
-                //     var $dt = $(dls[index]).children("dt").eq(0);
-                // // 从dt开始遍历dom树，生成对象
-                // var obj = foo($dt);                   
+                //     let $dt = $(dls[index]).children("dt").eq(0);
+                //     console.log('$dt',$dt);
+
+                //     // 从dt开始遍历dom树，生成对象
+                //     var obj = foo($dt);  
+                //     console.log('index',index);
+                //     console.log('obj',obj);                 
                 // }
 
                 // 将对象转化为json字符串，添加额外参数使json格式更易阅读
-                var s = JSON.stringify(obj, null, 4);
-                console.log('ssss',s);
+                // var s = JSON.stringify(obj, null, 4);
+                // console.log('ssss',s);
+
                 console.log('linkArr',linkArr);
                 console.log('typeArr',typeArr);
+
+                let newTypeList = [...new Set([...this.oldTypeList, ...typeArr])];
+                let newLinkList = [...new Set([...this.oldLinkList, ...linkArr])];
+
+
+                //先清除类型数据
+                this.navDb.clear_table({
+                    tableName:'type'
+                });
+                // 插入多条数据
+                this.navDb.insert({
+                    tableName: "type",
+                    data: newTypeList,
+                    success: () => {
+                        this.$message.success('存入类型成功');
+                        console.log("添加成功")
+                    }
+                });
+
+                //先清除数据
+                this.navDb.clear_table({
+                    tableName:'link'
+                });
+                // 插入多条数据
+                this.navDb.insert({
+                    tableName: "link",
+                    data: newLinkList,
+                    success: () => {
+                        this.$message.success('存入链接成功');
+                        console.log("添加成功")
+                        location.reload()
+                    }
+                });
+
                 // 将json字符串写入json文件
                 // fs.writeFileSync('output.json', s);
                 function foo($dt,t){
