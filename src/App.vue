@@ -335,7 +335,7 @@ export default {
         message: '清空浏览器数据会清掉导航内容，记得导出备份！',
         duration: 0
       });
-      let saveTime = `${new Date().getFullYear()}-${('00'+(new Date().getMonth()+1)).slice(-2)}-${new Date().getDate()}`;
+      let saveTime = `${new Date().getFullYear()}-${('00'+(new Date().getMonth()+1)).slice(-2)}-${('00'+new Date().getDate()).slice(-2)}`;
       localStorage.setItem("saveTip", saveTime);
     }
     
