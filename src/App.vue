@@ -108,7 +108,7 @@
         <div class="text">此版本不需要注册,但也不能分享(数据在你本地)!</div>
       </div>
       <div class="u-flex u-row-center other-item">
-        <div class="">如果你愿意你可以把你的专属链接分享给他人,请使用:<br /><a target="_blank" href="https://dao.momen.vip/">https://dao.momen.vip</a></div>
+        <div class="">如果你愿意你可以把你的专属链接分享给他人,:<br />或者懒得备份请使用:<br /><a target="_blank" href="https://dao.momen.vip/">https://dao.momen.vip</a></div>
         <div class="text"><img src="../src/assets/数据分享.svg" alt=""></div>
       </div>
       <div class="u-flex u-row-center other-item">
