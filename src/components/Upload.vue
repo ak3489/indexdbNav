@@ -36,6 +36,7 @@
 </template>
 
 <script>
+import $ from 'jquery';
 import { baseURL } from '@/config/settings'
 import Idb from 'idb-js'  //  引入Idb
 import db_student_config from '../db/db_student_config'
@@ -225,7 +226,8 @@ import db_student_config from '../db/db_student_config'
                     }else if(this.fileType=='text/html'){
                         this.jsonData = e.target.result;
                         this.$message.warning('暂时不支持此类文件！');
-                        console.log('this.jsonData',this.jsonData);
+                        // console.log('this.jsonData',this.jsonData);
+                        this.parse(this.jsonData)
 
                     }else{
                         this.$message.error('请选择正确的文件');
@@ -240,7 +242,69 @@ import db_student_config from '../db/db_student_config'
              },
              cancelUpload(){
                  this.$emit('cancelUpload')
-             }
+             },
+             parse(html){
+                let that = this;
+                let typeArr = [];
+                let linkArr = [];
+                // 加载html，使用常用的$符号
+                var htmls = $.parseHTML(html);
+                // console.log('htmls',htmls);
+                // 获取最外层的dt标签
+                var $dl = $(htmls).find("dl").first();
+                console.log('dls',$(htmls).find("dl"));
+                var $dt = $($dl).children("dt").eq(0);
+                // 从dt开始遍历dom树，生成对象
+                var obj = foo($dt);
+
+                // let dls = $(htmls).find("dl");
+                // for (let index = 0; index < dls.length; index++) {
+                //     var $dt = $(dls[index]).children("dt").eq(0);
+                // // 从dt开始遍历dom树，生成对象
+                // var obj = foo($dt);                   
+                // }
+
+                // 将对象转化为json字符串，添加额外参数使json格式更易阅读
+                var s = JSON.stringify(obj, null, 4);
+                console.log('ssss',s);
+                console.log('linkArr',linkArr);
+                console.log('typeArr',typeArr);
+                // 将json字符串写入json文件
+                // fs.writeFileSync('output.json', s);
+                function foo($dt,t){
+                    // h3标签为文件夹名称
+                    var $h3 = $($dt).children("h3");
+                    if($h3.length == 0){
+                        // a标签为网址
+                        var $a = $($dt).children("a");
+                        // 返回该书签的名称和网址组成的对象
+                        if ($a.length > 0) {
+                            linkArr.push({ _id:that.uuid(),"title": $a.text(), "desc": $a.text(), "url": $a.attr('href'), "type": t, "icon": $a.attr('icon'), "clicks": 1, "code": '' })
+                        }
+                        return $a.length > 0 ? { "title": $a.text(), "desc": $a.text(), "url": $a.attr('href'), "type": t, "icon": $a.attr('icon'), "clicks": 1, "code": '' } : null;
+                    }
+                    var h3 = $h3.text();
+                    typeArr.push({ type: h3, code: '',_id:that.uuid() });
+                    console.log('h3',h3);
+                    
+                    var arr = [];
+                    var obj = {};
+                    // 获取下一级dt标签集合
+                    var $dl = $($dt).children("dl");
+                    console.log('$dl$dl$dl',$dl);
+                    var $dtArr = $($dl).children("dt");
+                    for(var i = 0; i < $dtArr.length; i++){                        
+                        // 遍历下一级dt标签
+                        var tmp = foo($($dtArr).eq(i), h3);
+                        // 将返回的对象push至子文件数组
+                        arr.push(tmp);
+                    }
+                    // 创建文件夹与子文件数组的键值对
+                    obj[h3] = arr;
+                    // 返回该对象
+                    return obj;
+                }
+            }
              
         },
     }
