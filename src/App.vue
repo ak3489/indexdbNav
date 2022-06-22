@@ -322,17 +322,20 @@ export default {
     this.loading = this.$loading({ fullscreen: true });
     
     let saveTip = localStorage.getItem("saveTip");
-    let nowTime = `${new Date().getFullYear()}-${new Date().getMonth()+1}-${new Date().getDate()}`;
+    let nowTime = `${new Date().getFullYear()}-${('00'+(new Date().getMonth()+1)).slice(-2)}-${('00'+new Date().getDate()).slice(-2)}`;
     // console.log('saveTip',saveTip);
     // console.log('Between',);
-    let between = this.getDaysBetween(nowTime,saveTip);
+    let between = this.getDaysBetween(saveTip,nowTime);
+    // console.log('saveTip',saveTip);
+    // console.log('nowTime',nowTime);
+    // console.log('between',between);
     if(!saveTip||between>2){
       this.$notify({
         title: '注意',
         message: '清空浏览器数据会清掉导航内容，记得导出备份！',
         duration: 0
       });
-      let saveTime = `${new Date().getFullYear()}-${new Date().getMonth()+1}-${new Date().getDate()}`;
+      let saveTime = `${new Date().getFullYear()}-${('00'+(new Date().getMonth()+1)).slice(-2)}-${new Date().getDate()}`;
       localStorage.setItem("saveTip", saveTime);
     }
     
