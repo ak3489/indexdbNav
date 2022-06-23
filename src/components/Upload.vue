@@ -24,7 +24,7 @@
             >
             <i class="el-icon-upload"></i>
             <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-            <div class="el-upload__tip" slot="tip">选择文件后要点击下面生成的文件名确认导入</div>
+            <div class="el-upload__tip" slot="tip">能导入谷歌和本站导出的书签，选择文件后要点击下面生成的文件名确认导入</div>
         </el-upload>
         <span slot="footer" class="dialog-footer">
             <el-button @click="cancelUpload">关 闭</el-button>
