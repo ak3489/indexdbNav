@@ -283,7 +283,7 @@ import db_student_config from '../db/db_student_config'
                             success: () => {
                                 this.$message.success('存入链接成功');
                                 console.log("添加成功")
-                                // location.reload()
+                                location.reload()
                             }
                         });
 
