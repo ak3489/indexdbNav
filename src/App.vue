@@ -209,8 +209,9 @@ import SiteList from '@/components/SiteList'
 import Kitty from '@/components/Kitty'
 import Upload from '@/components/Upload'
 // import Uplocal from '@/components/Uplocal'
-import { getSiteList, addType, getTypeList, addLink, analysisURL } from '@/api'
-import utils from '@/utils/index.js'
+// import { getSiteList, addType, getTypeList, addLink, analysisURL } from '@/api'
+import {analysisURL } from '@/api'
+// import utils from '@/utils/index.js'
 import saveJSON from '@/utils/saveJSON.js'
 
 import Idb from 'idb-js'  //  引入Idb

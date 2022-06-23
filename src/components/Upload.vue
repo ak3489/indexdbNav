@@ -190,7 +190,7 @@ import db_student_config from '../db/db_student_config'
                             tableName: "type",
                             data: newTypeList,
                             success: () => {
-                                this.$message.success('存入类型成功');
+                                // this.$message.success('存入类型成功');
                                 console.log("添加成功")
                             }
                         });
