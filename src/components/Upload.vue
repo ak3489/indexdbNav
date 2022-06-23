@@ -24,7 +24,7 @@
             >
             <i class="el-icon-upload"></i>
             <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-            <div class="el-upload__tip" slot="tip">只能导入本站导出的json文件，选择文件后要点击下面的文件名触发导入</div>
+            <div class="el-upload__tip" slot="tip">选择文件后要点击下面生成的文件名确认导入</div>
         </el-upload>
         <span slot="footer" class="dialog-footer">
             <el-button @click="cancelUpload">关 闭</el-button>
@@ -36,7 +36,8 @@
 </template>
 
 <script>
-import { baseURL } from '@/config/settings'
+import { baseURL } from '@/config/settings';
+import { parseByString } from "bookmark-file-parser";//https://github.com/hold-baby/bookmark-file-parser
 import Idb from 'idb-js'  //  引入Idb
 import db_student_config from '../db/db_student_config'
     export default {
@@ -138,7 +139,7 @@ import db_student_config from '../db/db_student_config'
                     this.navDb.queryAll({
                         tableName: "link",
                         success: (res) => {
-                            console.log('queryAll oldLinkList',res)
+                            // console.log('queryAll oldLinkList',res)
                             this.oldLinkList = res;
                         }
                     });
@@ -223,9 +224,68 @@ import db_student_config from '../db/db_student_config'
                         });
 
                     }else if(this.fileType=='text/html'){
+                        let that = this;
                         this.jsonData = e.target.result;
-                        this.$message.warning('暂时不支持此类文件！');
-                        console.log('this.jsonData',this.jsonData);
+                        // this.$message.warning('暂时不支持此类文件！');
+                        // console.log('this.jsonData',this.jsonData);
+                        const bookmark = parseByString(this.jsonData)
+                        console.log('bookmark',bookmark);
+                        let typeArr = [];
+                        let linkArr = [];
+                        function finder(data,n){
+                            data.forEach(element => {
+                                // console.log('element',element.type);
+                                if(element.type=='folder'){
+                                    // console.log('element.name',element.name);
+                                    // console.log('element.children',element.children);
+                                    element.children.fatherName = element.name;
+                                    typeArr.push({ type: element.name, code: '',_id:that.uuid() });
+                                    finder(element.children,element.name)
+                                }else{
+                                    linkArr.push({ _id:that.uuid(),"title": element.name, "desc": element.name, "url": element.href, "type": n, "icon": element.icon, "clicks": 1, "code": '' })
+                                    // console.log('element href',element.href);
+                                }
+                            });
+                        };
+                        finder(bookmark,'常用链接');
+                        // console.log('typeArr',typeArr);
+                        // console.log('linkArr',linkArr);
+
+                        
+                        let newTypeList = [...new Set([...this.oldTypeList, ...typeArr])];
+                        let newLinkList = [...new Set([...this.oldLinkList, ...linkArr])]; 
+
+                        // console.log('newTypeList',newTypeList);
+                        // console.log('newLinkList',newLinkList);
+
+                        //先清除类型数据
+                        this.navDb.clear_table({
+                            tableName:'type'
+                        });
+                        // 插入多条数据
+                        this.navDb.insert({
+                            tableName: "type",
+                            data: newTypeList,
+                            success: () => {
+                                // this.$message.success('存入类型成功');
+                                console.log("添加成功")
+                            }
+                        });
+
+                        //先清除数据
+                        this.navDb.clear_table({
+                            tableName:'link'
+                        });
+                        // 插入多条数据
+                        this.navDb.insert({
+                            tableName: "link",
+                            data: newLinkList,
+                            success: () => {
+                                this.$message.success('存入链接成功');
+                                console.log("添加成功")
+                                // location.reload()
+                            }
+                        });
 
                     }else{
                         this.$message.error('请选择正确的文件');
