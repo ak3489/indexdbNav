@@ -35,7 +35,8 @@
     <el-dialog title="编辑网址" :visible.sync="linkDialog" :close-on-click-modal="false">
       <el-form :model="linkForm" :rules="linkRules" ref="linkFormRef" label-position="left"  label-width="90px">
         <el-form-item label="网址URL" prop="url">
-          <el-input type="input" placeholder="请输入网址URL" v-model="linkForm.url"></el-input>
+          <el-input type="input" placeholder="请输入网址URL" v-model="linkForm.url" style="width:80%;margin-right:24px"></el-input>
+		  <el-button v-if="linkForm.url" size="medium" type="primary" @click="getLinkInfo">分析网址</el-button>
         </el-form-item>
         <el-form-item label="网址标题" prop="title">
           <el-input type="input" :rows="4" placeholder="请输入网址标题" v-model="linkForm.title"></el-input>
@@ -50,6 +51,10 @@
         </el-form-item>
         <el-form-item label="网址图标">
           <el-input type="input" :rows="4" placeholder="请输入网站图标地址" v-model="linkForm.icon"></el-input>
+		  <div class="showIco" v-if="linkForm.icon" style="color:crimson;display: flex;align-items: center;margin-top: 24px;">
+            <img :src="linkForm.icon" alt="">
+            如果看到这行文字并且没看到图标请修改图标地址或者直接不填图标地址会显示默认的。
+          </div>
         </el-form-item>
         <el-form-item class="form-footer">
           <el-button size="medium" @click="linkDialog = false">取 消</el-button>
@@ -77,6 +82,7 @@
 
 import Idb from 'idb-js'  //  引入Idb
 import db_student_config from '../db/db_student_config'
+import {analysisURL } from '@/api'
 export default {
 	name: 'siteList',
 	data(){
@@ -142,6 +148,26 @@ export default {
 		async getTypeList() {
 			const res = await getTypeList()
 			this.typeList = res.data;
+		},
+		async getLinkInfo(){
+			// console.log('this.linkForm.url',this.linkForm.url);
+			if(/(http|https):\/\/([\w.]+\/?)\S*/.test(this.linkForm.url)){
+				const res = await analysisURL(this.linkForm.url);
+				
+				// console.log('linkForm',this.linkForm);
+				if(res.code!=200){
+				this.$message( res.msg + '请手动填写')
+				}else{
+					this.$message( {type: 'success',message:res.msg})
+				}
+				console.log('linkForm',res);
+				this.linkForm.title = res.data.title;
+				this.linkForm.desc = res.data.desc;
+				this.linkForm.icon = res.data.icon;
+			}else{
+			this.$alert( "网址错误-请以http或https开始")
+				console.log('inputUrlBlur','网址错误');
+			}
 		},
 		editLink(){
 			let param = {
