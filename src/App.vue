@@ -361,7 +361,17 @@ export default {
           {
             label: "新增网址",
             onClick: () => {
-              this.linkDialog = true;
+              // console.log('this.typeList',this.typeList);
+              if(this.typeList.length>0){
+                this.linkDialog = true;
+              }else{
+                this.$notify({
+                  title: '提示',
+                  message: '还没有类别，请先新增类别！',
+                  // duration: 0
+                });
+                // this.$message.error("请先新增类别");
+              }
             }
           },
           { label: "重新加载", divided: true, icon: "el-icon-refresh",
